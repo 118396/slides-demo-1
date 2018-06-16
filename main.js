@@ -1,60 +1,49 @@
-function getImage(n){
-    return $(`.images>img:nth-child(${x(n)})`)
-}
+let $buttons = $('#buttonWrapper>button')
+let $slides = $('#slides')
+let $images = $slides.children('img')
+let $firstCopy = $images.eq(0).clone(true)//给true 就是子元素也克隆，如果不给true只克隆自己，不克隆里面的东西
+let $lastCopy = $images.eq($images.length-1).clone(true)
 
-function x(n){
-    if(n>3){
-        n = n%3
-        if (n===0){
-            n=3
-        }
-    }
-    return n
-}
+$slides.append($firstCopy)//append 追加（插在后面）
+$slides.prepend($lastCopy)// prepend 插在前面
 
-function 初始化(){
-    n = 1
-    $(`.images > img:nth-child(${n})`).addClass('current')
-    .siblings().addClass('enter')
-}
+$slides.css({transform:'translateX(-400px)'})
 
-function makeCurrent($node){
-    return $node.removeClass('enter leave').addClass('current')
-}
-function makeLeave($node){
-    return  $node.removeClass('enter current').addClass('leave')
-    
-}
-function makeEnter($node){
-    return $node.removeClass('leave current').addClass('enter')
-}
-let n
-初始化()
-let timer = setInterval(()=>{
-  makeLeave(getImage(n))
-    .one('transitionend', (e)=>{
-      makeEnter($(e.currentTarget))//let 当前元素 = e.currentTarget
-                                    //makeEnter($(当前元素))
-    })
-  makeCurrent(getImage(n+1))
-  n += 1
-},2000)
-//声明一个n，初始化它，每三秒钟让第n个emg走（leave），leave结束以后，便进入enter区。
-//让n+1个变成当前元素，现在n变成2，再过三秒让第2个元素走，进去enter区，同时n+1让第3个元
-//素变成当前元素，现在n变成3，再过三秒让第3个元素走，进去enter区，让第一个元素进来。
-document.addEventListener('visibilitychange',function(e){
-    if(document.hidden){
-        window.clearInterval(timer)
-    }else{
-        timer = setInterval(()=>{
-            makeLeave(getImage(n))
-              .one('transitionend', (e)=>{
-                makeEnter($(e.currentTarget))//let 当前元素 = e.currentTarget
-                                              //makeEnter($(当前元素))
-              })
-            makeCurrent(getImage(n+1))
-            n += 1
-          },2000)
-    }
+let current = 0
+
+$buttons.eq(0).on('click',function(){
+   if(current == 2){
+    console.log('说明你是从最后一张移到第一张')
+    $slides.css({transform:'translateX(-1600px)'})
+        .one('transitionend',function(){
+            $slides.hide()
+            .offset()//如果你想知道一个东西的位置，就必须把它当前的css算一遍.offset一定会算的，算的过程中就会把浏览器自动合并给断掉。
+            $slides.css({transform:'translateX(-400px)'})
+            .show()
+        })
+
+   }else{
+        $slides.css({transform:'translateX(-400px)'})
+   }
+   current = 0
 })
-
+$buttons.eq(1).on('click',function(){
+    console.log(current)
+    $slides.css({transform:'translateX(-800px)'})
+    current = 1 
+})
+$buttons.eq(2).on('click',function(){
+    if(current == 0){
+        console.log('说明你是从第一张移到最后一张')
+        $slides.css({transform:'translateX(0px)'})
+        .one('transitionend',function(){
+            $slides.hide()
+             .offset()//如果你想知道一个东西的位置，就必须把它当前的css算一遍.offset一定会算的，算的过程中就会把浏览器自动合并给断掉。
+            $slides.css({transform:'translateX(-1200px)'})
+            .show()
+        })
+       } else{
+             $slides.css({transform:'translateX(-1200px)'})
+             current = 2
+       }
+})
